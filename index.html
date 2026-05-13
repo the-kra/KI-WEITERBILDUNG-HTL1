@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Drei KIs, ein Lehrer — KI-Weiterbildung HTL1 Lastenstraße Klagenfurt</title>
+<title>Drei KIs, ein Lehrer — KI-Weiterbildung HTL1 Klagenfurt</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -21,6 +21,8 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }
+
+#hoerprobe { scroll-margin-top: 40px; }
 
 body {
   background: var(--paper);
@@ -152,8 +154,62 @@ h1.title .underline {
   font-weight: 300;
   line-height: 1.4;
   color: var(--ink);
-  margin-bottom: 64px;
+  margin-bottom: 32px;
   font-style: italic;
+}
+
+/* HEAR LINK */
+.hear-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  margin-bottom: 64px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border: 2px solid var(--ink);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.hear-link:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.hear-link:active {
+  transform: translate(0, 0);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+.hear-icon {
+  color: var(--accent);
+  font-size: 14px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.hear-link:hover .hear-icon {
+  color: var(--paper);
+}
+
+.hear-arrow {
+  font-size: 16px;
+  font-weight: 700;
+  animation: bounce 1.8s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
 }
 
 /* CREDITS BAR */
@@ -529,6 +585,7 @@ footer a:hover { border-color: var(--accent); }
   .spoiler, .workflow, .audio-block { margin: 0 -24px 48px; padding: 48px 24px; }
   .hero-meta { flex-direction: column; gap: 16px; }
   .hero-meta-right { text-align: left; }
+  .hear-link { font-size: 11px; padding: 12px 18px; gap: 12px; }
 }
 
 /* INTRO ANIMATION */
@@ -585,6 +642,12 @@ footer a:hover { border-color: var(--accent); }
   <p class="tagline fade-up">
     Spoiler: Es entsteht keine Magie. Es entsteht Arbeit — aber Arbeit, die plötzlich in Stunden statt Wochen fertig ist.
   </p>
+
+  <a href="#hoerprobe" class="hear-link fade-up">
+    <span class="hear-icon">◉</span>
+    <span class="hear-text">Hör mal rein — die Audio-Zusammenfassung</span>
+    <span class="hear-arrow">↓</span>
+  </a>
 
   <div class="credits">
     <div class="credit-block">
@@ -655,7 +718,7 @@ footer a:hover { border-color: var(--accent); }
 
   <div class="prose">
     <div class="prose-side">
-      <div class="maraker">§ 02 — Das Ergebnis</div>
+      <div class="marker">§ 02 — Das Ergebnis</div>
     </div>
     <div class="prose-main">
       <h2>Ein Werkstück, das vorführt, was heute geht.</h2>
@@ -664,7 +727,7 @@ footer a:hover { border-color: var(--accent); }
     </div>
   </div>
 
-  <div class="audio-block">
+  <div class="audio-block" id="hoerprobe">
     <div>
       <div class="label">◉ Hörprobe — Audio-Werkstück</div>
       <h3>"Die Maschinen sprechen über sich selbst."</h3>
@@ -672,14 +735,14 @@ footer a:hover { border-color: var(--accent); }
     </div>
     <div class="audio-player">
       <div class="audio-meta">
-        <span>KI_WEITERBILDUNG_HTL1_MAI26.m4a</span>
+        <span>KI_WEITERBILDUNG_HTL1_MAI26.aac</span>
         <span>NOTEBOOKLM // STEREO</span>
       </div>
       <audio controls preload="none">
-        <source src="audio/KI-WEITERBILDUNG_HTL1_MAI26.m4a" type="audio/mp4">
+        <source src="audio/KI-WEITERBILDUNG_HTL1_MAI26.aac" type="audio/aac">
         Dein Browser unterstützt kein Audio-Element.
       </audio>
-      <div style="margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted);">↓ <a href="audio/KI-WEITERBILDUNG_HTL1_MAI26.m4a" download style="color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent);">Download audio</a></div>
+      <div style="margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted);">↓ <a href="audio/KI-WEITERBILDUNG_HTL1_MAI26.aac" download style="color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent);">Download AAC</a></div>
     </div>
   </div>
 </section>
@@ -708,7 +771,7 @@ footer a:hover { border-color: var(--accent); }
   </div>
   <div class="col">
     <span class="col-label">Lizenz</span>
-    <span>CC BY-SA 4.0</span>
+    <span>MIT License</span>
   </div>
 </footer>
 
