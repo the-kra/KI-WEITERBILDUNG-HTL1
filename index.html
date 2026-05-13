@@ -45,7 +45,7 @@ body::before {
   z-index: 100;
   opacity: 0.35;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence ='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
 }
 
 .mono { font-family: 'JetBrains Mono', monospace; }
@@ -523,6 +523,110 @@ audio { width: 100%; margin-top: 8px; }
   margin-bottom: 12px;
 }
 
+/* TOOL CARD (Perzeptron) */
+.tool-card {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 48px;
+  align-items: center;
+  background: var(--paper-deep);
+  color: var(--ink);
+  padding: 56px 48px;
+  margin: 0 -32px 80px;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  text-decoration: none;
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.tool-card:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.tool-card:hover .tool-card-label,
+.tool-card:hover .tool-card-formula {
+  color: var(--accent);
+}
+
+.tool-card:hover .tool-card-desc {
+  color: rgba(244, 237, 224, 0.85);
+}
+
+.tool-card:hover .tool-card-cta {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+.tool-card-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+  transition: color 0.2s ease;
+}
+
+.tool-card-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+
+.tool-card-desc {
+  font-size: 17px;
+  line-height: 1.5;
+  max-width: 540px;
+  transition: color 0.2s ease;
+}
+
+.tool-card-right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.tool-card-formula {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--muted);
+  padding: 12px 18px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  transition: color 0.2s ease;
+}
+
+.tool-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 22px;
+  background: var(--ink);
+  color: var(--paper);
+  border: 2px solid var(--ink);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.tool-card-arrow {
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.tool-card:hover .tool-card-arrow {
+  transform: translateX(6px);
+}
+
 /* CLOSE */
 .close {
   text-align: center;
@@ -578,11 +682,11 @@ footer a:hover { border-color: var(--accent); }
 
 /* RESPONSIVE */
 @media (max-width: 900px) {
-  .credits, .workflow-grid, .audio-block, .prose { grid-template-columns: 1fr; }
+  .credits, .workflow-grid, .audio-block, .prose, .tool-card { grid-template-columns: 1fr; }
   .step::after { display: none; }
   .hero { padding: 48px 24px 32px; }
   section { padding: 48px 24px; }
-  .spoiler, .workflow, .audio-block { margin: 0 -24px 48px; padding: 48px 24px; }
+  .spoiler, .workflow, .audio-block, .tool-card { margin: 0 -24px 48px; padding: 48px 24px; }
   .hero-meta { flex-direction: column; gap: 16px; }
   .hero-meta-right { text-align: left; }
   .hear-link { font-size: 11px; padding: 12px 18px; gap: 12px; }
@@ -742,9 +846,24 @@ footer a:hover { border-color: var(--accent); }
         <source src="audio/KI-WEITERBILDUNG_HTL1_MAI26.m4a" type="audio/mp4">
         Dein Browser unterstützt kein Audio-Element.
       </audio>
-      <div style="margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted);">↓ <a href="audio/KI-WEITERBILDUNG_HTL1_MAI26.m4a" download style="color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent);">Download m4a</a></div>
+      <div style="margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted);">↓ <a href="audio/KI-WEITERBILDUNG_HTL1_MAI26.m4a" download style="color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent);">Download M4A</a></div>
     </div>
   </div>
+
+  <a href="perzeptron.html" class="tool-card">
+    <div class="tool-card-left">
+      <div class="tool-card-label">§ 03 — Selbst ausprobieren</div>
+      <div class="tool-card-title">Verstehe das einfache Modell von Rosenblatt</div>
+      <div class="tool-card-desc">Ein interaktives Perzeptron — die Urzelle aller heutigen KI. Setze die Gewichte selbst, beobachte, wie das Neuron AND und OR lernt — und warum XOR scheitert. Frank Rosenblatt, 1957.</div>
+    </div>
+    <div class="tool-card-right">
+      <div class="tool-card-formula">y = f(w₁·x₁ + w₂·x₂ + b)</div>
+      <div class="tool-card-cta">
+        <span>Interaktives Tool öffnen</span>
+        <span class="tool-card-arrow">→</span>
+      </div>
+    </div>
+  </a>
 </section>
 
 <div class="close">

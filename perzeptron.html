@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Perzeptron, XOR, Aktivierungen und Training</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+  margin: 0;
+  padding: 24px;
+  line-height: 1.5;
+}
+.wrap { max-width: 1280px; margin: 0 auto; }
+h1 { color: #0f2d52; margin: 0 0 8px; font-size: 28px; }
+.subtitle { color: #64748b; margin: 0 0 20px; font-size: 16px; }
+
+.toolbar { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.tab-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.tab-group-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; font-weight: 600; margin-right: 6px; align-self: center; }
+.tab {
+  padding: 8px 14px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  transition: all 0.15s;
+}
+.tab:hover { border-color: #2563eb; }
+.tab.active { background: #2563eb; color: white; border-color: #2563eb; }
+.tab.activ-fn.active { background: #7c3aed; border-color: #7c3aed; }
+
+.training-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  flex-wrap: wrap;
+}
+.training-bar .group-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+.training-bar button {
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #cbd5e1;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #334155;
+}
+.training-bar button:hover { background: #f1f5f9; }
+.training-bar button.primary {
+  background: #059669;
+  color: white;
+  border-color: #059669;
+}
+.training-bar button.primary:hover { background: #047857; }
+.training-bar button.danger {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+.training-bar button:disabled { opacity: 0.4; cursor: not-allowed; }
+.lr-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.lr-row input[type=range] { width: 100px; }
+.training-info {
+  margin-left: auto;
+  font-size: 13px;
+  color: #475569;
+  font-variant-numeric: tabular-nums;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+}
+.card-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+table th {
+  text-align: left;
+  font-weight: 500;
+  color: #64748b;
+  font-size: 11px;
+  padding: 5px 6px;
+  border-bottom: 1px solid #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+table td {
+  padding: 6px;
+  border-bottom: 1px solid #f1f5f9;
+  font-variant-numeric: tabular-nums;
+}
+table td.calc {
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.acc-line {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.acc-val { font-weight: 600; margin-left: 6px; font-size: 16px; }
+.ok { color: #059669; }
+.bad { color: #dc2626; }
+
+.neuron-block {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.neuron-block.h1 { border-left: 4px solid #2563eb; }
+.neuron-block.h2 { border-left: 4px solid #14b8a6; }
+.neuron-block.out { border-left: 4px solid #f59e0b; }
+.neuron-title { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+.slider-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 50px;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+.slider-row label { color: #475569; }
+.slider-row input[type=range] { width: 100%; }
+.slider-row .val { text-align: right; font-weight: 500; font-family: monospace; }
+.formula {
+  font-family: monospace;
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+button.action {
+  padding: 7px 12px;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-right: 5px;
+  color: #475569;
+}
+button.action:hover { background: #f1f5f9; }
+button.primary {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+button.primary:hover { background: #1d4ed8; }
+
+.legend {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 10px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+.hint {
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  margin-top: 10px;
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+svg { display: block; width: 100%; height: auto; }
+
+.activation-card {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  align-items: center;
+}
+@media (max-width: 700px) { .activation-card { grid-template-columns: 1fr; } }
+.fn-info { font-size: 13px; color: #475569; }
+.fn-info code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+.fn-info .fn-name { font-weight: 600; color: #7c3aed; font-size: 15px; }
+
+.error-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 900px) { .error-card { grid-template-columns: 1fr; } }
+
+.formula-box {
+  background: #faf5ff;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  border-left: 3px solid #7c3aed;
+  margin-bottom: 10px;
+}
+.formula-box code {
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  background: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #4c1d95;
+}
+
+#errorPlot { background: #fafafa; border-radius: 6px; }
+.epoch-label { font-size: 11px; color: #64748b; }
+
+.warning-box {
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  margin-top: 8px;
+  display: none;
+}
+.warning-box.show { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Perzeptron, XOR, Aktivierungen und Training</h1>
+  <p class="subtitle">Wackle manuell oder lass das Netz selbst lernen. Beobachte wie der Fehler fällt.</p>
+
+  <div class="toolbar">
+    <div class="tab-group">
+      <span class="tab-group-label">Aufgabe</span>
+      <button class="tab" data-mode="AND">AND</button>
+      <button class="tab" data-mode="OR">OR</button>
+      <button class="tab" data-mode="XOR">XOR — 1 Neuron</button>
+      <button class="tab" data-mode="XOR2">XOR — Hidden Layer</button>
+    </div>
+    <div class="tab-group">
+      <span class="tab-group-label">Aktivierung</span>
+      <button class="tab activ-fn" data-fn="step">Step</button>
+      <button class="tab activ-fn" data-fn="sigmoid">Sigmoid</button>
+      <button class="tab activ-fn" data-fn="relu">ReLU</button>
+      <button class="tab activ-fn" data-fn="tanh">tanh</button>
+    </div>
+  </div>
+
+  <div class="training-bar">
+    <span class="group-label">Training</span>
+    <button id="step1Btn">1 Schritt</button>
+    <button id="step10Btn">10 Schritte</button>
+    <button id="autoBtn" class="primary">▶ Auto</button>
+    <button id="randomBtn" class="danger">Gewichte zufällig</button>
+    <div class="lr-row">
+      <label for="lrSlider">Lernrate</label>
+      <input type="range" id="lrSlider" min="-2" max="0.5" step="0.1" value="-0.5">
+      <span id="lrVal" style="font-family: monospace; min-width: 50px;">0.3</span>
+    </div>
+    <div class="training-info">
+      Epoche: <strong id="epochCounter">0</strong>
+      <span style="margin: 0 8px; color: #cbd5e1;">|</span>
+      Gesamtfehler: <strong id="totalError" style="color: #dc2626;">—</strong>
+    </div>
+  </div>
+
+  <div class="warning-box" id="stepWarning">
+    <strong>Achtung:</strong> Die Step-Funktion ist nicht differenzierbar — kein Gradientenabstieg möglich. Hier verwende ich die historische <strong>Perzeptron-Lernregel</strong> von Rosenblatt (1957). Sie funktioniert für ein einzelnes Neuron, nicht für Hidden Layer.
+  </div>
+  <div class="warning-box" id="xorWarning">
+    <strong>Hinweis:</strong> XOR mit Hidden Layer kann in lokalen Minima stecken bleiben. Falls nach 200 Epochen der Fehler nicht fällt: "Gewichte zufällig" klicken und nochmal trainieren.
+  </div>
+
+  <div class="card activation-card" style="margin-bottom: 16px;">
+    <svg id="actplot" viewBox="0 0 200 100" style="background: #fafafa; border-radius: 6px;">
+      <line x1="0" y1="50" x2="200" y2="50" stroke="#cbd5e1" stroke-width="0.5"/>
+      <line x1="100" y1="0" x2="100" y2="100" stroke="#cbd5e1" stroke-width="0.5"/>
+      <text x="195" y="48" font-size="8" fill="#64748b" text-anchor="end">z</text>
+      <text x="98" y="8" font-size="8" fill="#64748b" text-anchor="end">f(z)</text>
+      <path id="actcurve" fill="none" stroke="#7c3aed" stroke-width="2"/>
+    </svg>
+    <div class="fn-info" id="fninfo"></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">Eingaberaum mit Aktivierungs-Heatmap</div>
+      <svg id="space" viewBox="0 0 320 280">
+        <defs>
+          <clipPath id="plotclip"><rect x="20" y="20" width="290" height="220"/></clipPath>
+        </defs>
+        <image id="heatmap" x="20" y="20" width="290" height="220" preserveAspectRatio="none" clip-path="url(#plotclip)"/>
+        <line x1="40" y1="240" x2="300" y2="240" stroke="#64748b" stroke-width="1"/>
+        <line x1="40" y1="240" x2="40" y2="20" stroke="#64748b" stroke-width="1"/>
+        <text x="40" y="260" text-anchor="middle" font-size="11" fill="#64748b">0</text>
+        <text x="300" y="260" text-anchor="middle" font-size="11" fill="#64748b">1</text>
+        <text x="28" y="244" text-anchor="end" font-size="11" fill="#64748b">0</text>
+        <text x="28" y="24" text-anchor="end" font-size="11" fill="#64748b">1</text>
+        <text x="170" y="276" text-anchor="middle" font-size="13" fill="#475569" font-weight="500">x1</text>
+        <text x="14" y="130" text-anchor="middle" font-size="13" fill="#475569" font-weight="500">x2</text>
+        <line id="line1" x1="0" y1="0" x2="0" y2="0" stroke="#2563eb" stroke-width="2.5"/>
+        <line id="line2" x1="0" y1="0" x2="0" y2="0" stroke="#14b8a6" stroke-width="2.5"/>
+        <g id="points"></g>
+        <g id="labels"></g>
+      </svg>
+      <div class="legend">
+        <span class="legend-item"><span class="dot" style="background:#1d9e75"></span> Soll 1</span>
+        <span class="legend-item"><span class="dot" style="background:#94a3b8"></span> Soll 0</span>
+        <span class="legend-item"><span class="dot" style="background:#2563eb"></span> Entscheidungsgrenze h1</span>
+        <span class="legend-item" id="legend-line2" style="display:none;"><span class="dot" style="background:#14b8a6"></span> Entscheidungsgrenze h2</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Fehlerverlauf über Training</div>
+      <svg id="errorPlot" viewBox="0 0 320 200">
+        <line x1="40" y1="170" x2="310" y2="170" stroke="#cbd5e1" stroke-width="0.5"/>
+        <line x1="40" y1="170" x2="40" y2="15" stroke="#cbd5e1" stroke-width="0.5"/>
+        <text x="40" y="190" font-size="10" fill="#64748b" text-anchor="middle">0</text>
+        <text x="310" y="190" font-size="10" fill="#64748b" text-anchor="end" id="epochMaxLabel">100</text>
+        <text x="175" y="195" font-size="11" fill="#475569" text-anchor="middle">Epoche</text>
+        <text x="35" y="170" font-size="10" fill="#64748b" text-anchor="end">0</text>
+        <text x="35" y="20" font-size="10" fill="#64748b" text-anchor="end" id="errorMaxLabel">2.0</text>
+        <text x="14" y="95" font-size="11" fill="#475569" text-anchor="middle" transform="rotate(-90 14 95)">Fehler (MSE)</text>
+        <path id="errorCurve" fill="none" stroke="#dc2626" stroke-width="2"/>
+      </svg>
+      <div class="formula-box" id="formulaBox">
+        <strong>Fehlerformel:</strong> Mean Squared Error (MSE)<br>
+        <code>E = (1/N) · Σ (Soll − Ist)²</code><br>
+        <span style="font-size: 11px; color: #64748b; margin-top: 4px; display: inline-block;">
+          Beim Training wird der Fehler nach jeder Epoche neu berechnet. Eine Epoche = alle 4 Eingaben einmal durchlaufen und Gewichte angepasst.
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom: 16px;">
+    <div class="card-title">Berechnung pro Eingabe (mit Einzelfehler)</div>
+    <div id="tableLegend" style="font-size: 12px; color: #475569; margin-bottom: 10px; padding: 8px 10px; background: #f8fafc; border-radius: 6px; border-left: 3px solid #7c3aed;"></div>
+    <div style="overflow-x: auto;">
+      <table id="calctable">
+        <thead id="calchead"></thead>
+        <tbody id="calcbody"></tbody>
+      </table>
+    </div>
+    <div class="acc-line">
+      <span>Genauigkeit:<span id="acc" class="acc-val">0/4</span></span>
+      <span id="errSum"></span>
+    </div>
+    <div class="hint" id="hint">Wackle an den Schiebereglern bis alle vier Punkte korrekt klassifiziert sind. Oder klicke oben "Auto" und lass das Netz selbst lernen.</div>
+  </div>
+
+  <div class="card" id="controls"></div>
+</div>
+
+<script>
+// ------- Daten -------
+const targets = {
+  AND:  [0, 0, 0, 1],
+  OR:   [0, 1, 1, 1],
+  XOR:  [0, 1, 1, 0],
+  XOR2: [0, 1, 1, 0]
+};
+const pts = [[0,0],[1,0],[0,1],[1,1]];
+let mode = 'AND';
+let activFn = 'sigmoid';
+
+const single = { w1: 0.5, w2: 0.5, b: 0 };
+const multi = {
+  h1: { w1: 0.5, w2: 0.5, b: 0 },
+  h2: { w1: -0.5, w2: 0.5, b: 0 },
+  out: { w1: 0.5, w2: -0.5, b: 0 }
+};
+
+let epoch = 0;
+let lr = 0.3;
+let autoTraining = false;
+let autoTimer = null;
+let errorHistory = [];
+
+// ------- Aktivierungsfunktionen mit Ableitungen -------
+const activations = {
+  step:    { fn: z => z >= 0 ? 1 : 0,
+             deriv: z => 0,
+             range: [0, 1],  threshold: 0.5,
+             name: "Step (Heaviside)",
+             info: "f(z) = 1 wenn z ≥ 0, sonst 0. Rosenblatt 1957. Scharf, aber nicht differenzierbar — Backpropagation unmöglich. Genau das hat den KI-Winter ausgelöst." },
+  sigmoid: { fn: z => 1 / (1 + Math.exp(-z)),
+             deriv: z => { const s = 1 / (1 + Math.exp(-z)); return s * (1 - s); },
+             range: [0, 1],  threshold: 0.5,
+             name: "Sigmoid",
+             info: "f(z) = 1 / (1 + e⁻ᶻ). Weicher Übergang. Differenzierbar — der Schlüssel zu Backpropagation. Der Durchbruch der 80er Jahre." },
+  relu:    { fn: z => Math.max(0, z),
+             deriv: z => z > 0 ? 1 : 0,
+             range: [0, 2],  threshold: 0.5,
+             name: "ReLU",
+             info: "f(z) = max(0, z). Heutiger Standard in Deep Learning. Schnell, einfach, funktioniert in tiefen Netzen." },
+  tanh:    { fn: z => Math.tanh(z),
+             deriv: z => 1 - Math.tanh(z) ** 2,
+             range: [-1, 1], threshold: 0,
+             name: "tanh",
+             info: "f(z) = tanh(z). Wie Sigmoid, aber zentriert um 0. Werte zwischen −1 und +1." }
+};
+
+function activate(z){ return activations[activFn].fn(z); }
+function activateDeriv(z){ return activations[activFn].deriv(z); }
+function threshold(){ return activations[activFn].threshold; }
+function classify(a){ return a >= threshold() ? 1 : 0; }
+function fmt(v, d=2){ return v.toFixed(d); }
+
+// ------- Helpers -------
+function px(x){ return 40 + x * 260; }
+function py(y){ return 240 - y * 220; }
+function preActivation(n, x1, x2){ return n.w1 * x1 + n.w2 * x2 + n.b; }
+function activationOf(n, x1, x2){ return activate(preActivation(n, x1, x2)); }
+
+function computeRows(){
+  return pts.map(([x1, x2], i) => {
+    const target = targets[mode][i];
+    if (mode === 'XOR2') {
+      const z1 = preActivation(multi.h1, x1, x2);
+      const a1 = activate(z1);
+      const z2 = preActivation(multi.h2, x1, x2);
+      const a2 = activate(z2);
+      const zo = multi.out.w1 * a1 + multi.out.w2 * a2 + multi.out.b;
+      const ao = activate(zo);
+      const err = (target - ao) ** 2;
+      return { x1, x2, target, z1, a1, z2, a2, zo, ao, err, output: classify(ao) };
+    } else {
+      const z = preActivation(single, x1, x2);
+      const a = activate(z);
+      const err = (target - a) ** 2;
+      return { x1, x2, target, z, a, err, output: classify(a) };
+    }
+  });
+}
+
+function totalError(rows){ return rows.reduce((s, r) => s + r.err, 0) / rows.length; }
+
+// ------- TRAINING -------
+function trainStep(){
+  const rows = computeRows();
+
+  if (mode === 'XOR2') {
+    // Backpropagation für 2-2-1-Netz mit aktueller Aktivierungsfunktion
+    if (activFn === 'step') {
+      // Step lässt sich nicht differenzieren — für Hidden Layer geht das nicht
+      // Wir tun trotzdem so als ob (Pseudo-Update damit die UI nicht hängt)
+      // Aber zeigen die Warnung
+      return false; // signalisiert dass kein echtes Training stattfindet
+    }
+    // Standard Backprop für jeden Datenpunkt, dann Mittelwert
+    const grads = {
+      h1: { w1: 0, w2: 0, b: 0 },
+      h2: { w1: 0, w2: 0, b: 0 },
+      out: { w1: 0, w2: 0, b: 0 }
+    };
+    rows.forEach(r => {
+      // Forward Pass schon in r drin
+      // Backward Pass
+      // dE/d(ao) = -2 * (target - ao) / N
+      const dE_dao = -2 * (r.target - r.ao);
+      // dao/dzo = f'(zo)
+      const dao_dzo = activateDeriv(r.zo);
+      const dE_dzo = dE_dao * dao_dzo;
+
+      // Gradienten für Output-Neuron
+      grads.out.w1 += dE_dzo * r.a1;
+      grads.out.w2 += dE_dzo * r.a2;
+      grads.out.b  += dE_dzo;
+
+      // Backprop in Hidden Layer
+      const dE_da1 = dE_dzo * multi.out.w1;
+      const dE_da2 = dE_dzo * multi.out.w2;
+
+      const dE_dz1 = dE_da1 * activateDeriv(r.z1);
+      const dE_dz2 = dE_da2 * activateDeriv(r.z2);
+
+      grads.h1.w1 += dE_dz1 * r.x1;
+      grads.h1.w2 += dE_dz1 * r.x2;
+      grads.h1.b  += dE_dz1;
+      grads.h2.w1 += dE_dz2 * r.x1;
+      grads.h2.w2 += dE_dz2 * r.x2;
+      grads.h2.b  += dE_dz2;
+    });
+
+    const N = rows.length;
+    // Update
+    multi.h1.w1 -= lr * grads.h1.w1 / N;
+    multi.h1.w2 -= lr * grads.h1.w2 / N;
+    multi.h1.b  -= lr * grads.h1.b  / N;
+    multi.h2.w1 -= lr * grads.h2.w1 / N;
+    multi.h2.w2 -= lr * grads.h2.w2 / N;
+    multi.h2.b  -= lr * grads.h2.b  / N;
+    multi.out.w1 -= lr * grads.out.w1 / N;
+    multi.out.w2 -= lr * grads.out.w2 / N;
+    multi.out.b  -= lr * grads.out.b  / N;
+
+  } else {
+    // Single Neuron
+    if (activFn === 'step') {
+      // Perzeptron-Lernregel (Rosenblatt 1957)
+      // Δw = lr * (target - output) * input
+      rows.forEach(r => {
+        const error = r.target - r.output; // -1, 0, oder +1
+        single.w1 += lr * error * r.x1;
+        single.w2 += lr * error * r.x2;
+        single.b  += lr * error;
+      });
+    } else {
+      // Gradientenabstieg mit MSE
+      const grads = { w1: 0, w2: 0, b: 0 };
+      rows.forEach(r => {
+        const dE_da = -2 * (r.target - r.a);
+        const da_dz = activateDeriv(r.z);
+        const dE_dz = dE_da * da_dz;
+        grads.w1 += dE_dz * r.x1;
+        grads.w2 += dE_dz * r.x2;
+        grads.b  += dE_dz;
+      });
+      const N = rows.length;
+      single.w1 -= lr * grads.w1 / N;
+      single.w2 -= lr * grads.w2 / N;
+      single.b  -= lr * grads.b  / N;
+    }
+  }
+
+  epoch++;
+  const rowsAfter = computeRows();
+  errorHistory.push(totalError(rowsAfter));
+  if (errorHistory.length > 500) errorHistory = errorHistory.slice(-500);
+  return true;
+}
+
+function trainN(n){
+  let didTrain = false;
+  for (let i = 0; i < n; i++) {
+    const result = trainStep();
+    if (result === false) {
+      // Step + XOR2 — kein echtes Training
+      document.getElementById('stepWarning').classList.add('show');
+      break;
+    }
+    didTrain = true;
+  }
+  if (didTrain) {
+    renderControls();
+    update();
+    renderErrorPlot();
+  }
+}
+
+function startAuto(){
+  autoTraining = true;
+  document.getElementById('autoBtn').textContent = '⏸ Stopp';
+  document.getElementById('autoBtn').classList.remove('primary');
+  autoTimer = setInterval(() => {
+    if (!autoTraining) return;
+    trainN(1);
+    // Stop wenn Fehler sehr klein oder zu viele Epochen
+    const e = errorHistory[errorHistory.length - 1];
+    if (e !== undefined && e < 0.001) stopAuto();
+    if (epoch > 5000) stopAuto();
+  }, 40);
+}
+
+function stopAuto(){
+  autoTraining = false;
+  document.getElementById('autoBtn').textContent = '▶ Auto';
+  document.getElementById('autoBtn').classList.add('primary');
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+}
+
+function randomizeWeights(){
+  stopAuto();
+  if (mode === 'XOR2') {
+    ['h1','h2','out'].forEach(k => {
+      multi[k].w1 = (Math.random() - 0.5) * 2;
+      multi[k].w2 = (Math.random() - 0.5) * 2;
+      multi[k].b  = (Math.random() - 0.5) * 2;
+    });
+  } else {
+    single.w1 = (Math.random() - 0.5) * 2;
+    single.w2 = (Math.random() - 0.5) * 2;
+    single.b  = (Math.random() - 0.5) * 2;
+  }
+  resetEpoch();
+  renderControls();
+  update();
+  renderErrorPlot();
+}
+
+function resetEpoch(){
+  epoch = 0;
+  // Startfehler bei Epoche 0 in die Historie aufnehmen
+  const rows = computeRows();
+  errorHistory = [totalError(rows)];
+  document.getElementById('stepWarning').classList.remove('show');
+}
+
+// ------- Heatmap -------
+function renderHeatmap(){
+  const W = 145, H = 110;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(W, H);
+  const [rMin, rMax] = activations[activFn].range;
+  const span = rMax - rMin;
+
+  for (let yi = 0; yi < H; yi++) {
+    for (let xi = 0; xi < W; xi++) {
+      const x1 = -0.1 + (xi / (W - 1)) * 1.2;
+      const x2 = 1.1 - (yi / (H - 1)) * 1.2;
+      let outVal;
+      if (mode === 'XOR2') {
+        const a1 = activationOf(multi.h1, x1, x2);
+        const a2 = activationOf(multi.h2, x1, x2);
+        outVal = activate(multi.out.w1 * a1 + multi.out.w2 * a2 + multi.out.b);
+      } else {
+        outVal = activationOf(single, x1, x2);
+      }
+      const t = Math.max(0, Math.min(1, (outVal - rMin) / span));
+      const r = Math.round(248 - t * 200);
+      const g = Math.round(248 - t * 50);
+      const b = Math.round(248 - t * 200);
+      const idx = (yi * W + xi) * 4;
+      img.data[idx] = r;
+      img.data[idx+1] = g;
+      img.data[idx+2] = b;
+      img.data[idx+3] = 180;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  document.getElementById('heatmap').setAttribute('href', canvas.toDataURL());
+}
+
+function renderLine(lineEl, w1, w2, b){
+  if (Math.abs(w2) < 0.05) {
+    const xv = -b / (w1 || 0.001);
+    const lx = px(xv);
+    lineEl.setAttribute('x1', lx);
+    lineEl.setAttribute('y1', py(-0.3));
+    lineEl.setAttribute('x2', lx);
+    lineEl.setAttribute('y2', py(1.3));
+  } else {
+    const yAt = (x) => -(w1*x + b) / w2;
+    lineEl.setAttribute('x1', px(-0.3));
+    lineEl.setAttribute('y1', py(yAt(-0.3)));
+    lineEl.setAttribute('x2', px(1.3));
+    lineEl.setAttribute('y2', py(yAt(1.3)));
+  }
+  lineEl.style.display = 'block';
+}
+
+function renderTabs(){
+  document.querySelectorAll('.tab[data-mode]').forEach(t => {
+    t.classList.toggle('active', t.dataset.mode === mode);
+  });
+  document.querySelectorAll('.tab[data-fn]').forEach(t => {
+    t.classList.toggle('active', t.dataset.fn === activFn);
+  });
+}
+
+function renderActivationPlot(){
+  const path = document.getElementById('actcurve');
+  const pts = [];
+  for (let i = 0; i <= 120; i++) {
+    const z = -6 + (i / 120) * 12;
+    const a = activate(z);
+    const sx = 100 + (z / 6) * 100;
+    const sy = 50 - a * 35;
+    pts.push(`${sx.toFixed(1)},${sy.toFixed(1)}`);
+  }
+  path.setAttribute('d', 'M' + pts.join(' L'));
+  const info = activations[activFn];
+  document.getElementById('fninfo').innerHTML = `<div class="fn-name">${info.name}</div><div style="margin-top:6px">${info.info}</div>`;
+}
+
+function renderSpace(rows){
+  const line1 = document.getElementById('line1');
+  const line2 = document.getElementById('line2');
+  const legend2 = document.getElementById('legend-line2');
+  if (mode === 'XOR2') {
+    renderLine(line1, multi.h1.w1, multi.h1.w2, multi.h1.b);
+    renderLine(line2, multi.h2.w1, multi.h2.w2, multi.h2.b);
+    legend2.style.display = 'flex';
+  } else {
+    renderLine(line1, single.w1, single.w2, single.b);
+    line2.style.display = 'none';
+    legend2.style.display = 'none';
+  }
+  renderHeatmap();
+
+  const pointsG = document.getElementById('points');
+  const labelsG = document.getElementById('labels');
+  pointsG.innerHTML = '';
+  labelsG.innerHTML = '';
+  rows.forEach(r => {
+    const cx = px(r.x1), cy = py(r.x2);
+    const fill = r.target === 1 ? '#1d9e75' : '#94a3b8';
+    const ok = r.output === r.target;
+    const strokeColor = ok ? '#0f172a' : '#dc2626';
+    const strokeWidth = ok ? 1.5 : 3;
+    pointsG.innerHTML += `<circle cx="${cx}" cy="${cy}" r="11" fill="${fill}" stroke="${strokeColor}" stroke-width="${strokeWidth}"/>`;
+    labelsG.innerHTML += `<text x="${cx + 16}" y="${cy + 4}" font-size="11" fill="#64748b">Soll ${r.target}</text>`;
+  });
+}
+
+function renderErrorPlot(){
+  const path = document.getElementById('errorCurve');
+  const epMaxLabel = document.getElementById('epochMaxLabel');
+  const errMaxLabel = document.getElementById('errorMaxLabel');
+  if (errorHistory.length === 0) {
+    path.setAttribute('d', '');
+    epMaxLabel.textContent = '—';
+    errMaxLabel.textContent = '—';
+    return;
+  }
+  const maxEp = errorHistory.length;
+  const maxErr = Math.max(...errorHistory, 0.1);
+  epMaxLabel.textContent = maxEp;
+  errMaxLabel.textContent = maxErr.toFixed(2);
+
+  const pts = errorHistory.map((e, i) => {
+    const x = 40 + (i / Math.max(1, maxEp - 1)) * 270;
+    const y = 170 - (e / maxErr) * 150;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  path.setAttribute('d', 'M' + pts.join(' L'));
+}
+
+function renderCalcTable(rows){
+  const head = document.getElementById('calchead');
+  const body = document.getElementById('calcbody');
+  const legend = document.getElementById('tableLegend');
+  body.innerHTML = '';
+
+  if (mode === 'XOR2') {
+    legend.innerHTML = `<strong>So liest du die Tabelle:</strong> Jedes Neuron berechnet erst <code>z = w1·Eingabe1 + w2·Eingabe2 + b</code> (Rohsumme), dann <code>a = f(z)</code>. Das Ausgabeneuron bekommt <em>a₁ und a₂</em> als Eingabe. <strong>Fehler = (Soll − aₒ)²</strong>.`;
+    head.innerHTML = `<tr>
+      <th>x1</th><th>x2</th>
+      <th>z₁</th><th>a₁</th>
+      <th>z₂</th><th>a₂</th>
+      <th>zₒ</th><th>aₒ</th>
+      <th>Soll</th><th>Fehler</th><th>OK</th>
+    </tr>`;
+    let correct = 0, errSum = 0;
+    rows.forEach(r => {
+      const ok = r.output === r.target;
+      if (ok) correct++;
+      errSum += r.err;
+      body.innerHTML += `<tr>
+        <td>${r.x1}</td><td>${r.x2}</td>
+        <td class="calc">${fmt(r.z1)}</td>
+        <td class="calc">${fmt(r.a1)}</td>
+        <td class="calc">${fmt(r.z2)}</td>
+        <td class="calc">${fmt(r.a2)}</td>
+        <td class="calc">${fmt(r.zo)}</td>
+        <td class="calc"><strong>${fmt(r.ao)}</strong></td>
+        <td>${r.target}</td>
+        <td class="calc" style="color:#dc2626">${fmt(r.err, 3)}</td>
+        <td class="${ok ? 'ok' : 'bad'}">${ok ? '✓' : '✗'}</td>
+      </tr>`;
+    });
+    setStatus(correct, errSum / rows.length);
+  } else {
+    legend.innerHTML = `<strong>So liest du die Tabelle:</strong> Erst <code>z = w1·x1 + w2·x2 + b</code> (Rohsumme), dann <code>a = f(z)</code>. Klasse = 1 wenn a ≥ Schwelle. <strong>Fehler = (Soll − a)²</strong>.`;
+    head.innerHTML = `<tr>
+      <th>x1</th><th>x2</th>
+      <th>z = w1·x1 + w2·x2 + b</th>
+      <th>a = f(z)</th>
+      <th>Klasse</th>
+      <th>Soll</th><th>Fehler</th><th>OK</th>
+    </tr>`;
+    let correct = 0, errSum = 0;
+    rows.forEach(r => {
+      const ok = r.output === r.target;
+      if (ok) correct++;
+      errSum += r.err;
+      const calcStr = `${fmt(single.w1,2)}·${r.x1} + ${fmt(single.w2,2)}·${r.x2} + ${fmt(single.b,2)} = ${fmt(r.z)}`;
+      body.innerHTML += `<tr>
+        <td>${r.x1}</td><td>${r.x2}</td>
+        <td class="calc">${calcStr}</td>
+        <td class="calc"><strong>${fmt(r.a)}</strong></td>
+        <td>${r.output}</td>
+        <td>${r.target}</td>
+        <td class="calc" style="color:#dc2626">${fmt(r.err, 3)}</td>
+        <td class="${ok ? 'ok' : 'bad'}">${ok ? '✓' : '✗'}</td>
+      </tr>`;
+    });
+    setStatus(correct, errSum / rows.length);
+  }
+}
+
+function setStatus(correct, meanErr){
+  const acc = document.getElementById('acc');
+  acc.textContent = correct + '/4';
+  acc.className = 'acc-val ' + (correct === 4 ? 'ok' : '');
+
+  document.getElementById('errSum').innerHTML = `Durchschn. Fehler: <strong style="color:#dc2626">${fmt(meanErr, 4)}</strong>`;
+  document.getElementById('totalError').textContent = fmt(meanErr, 4);
+  document.getElementById('epochCounter').textContent = epoch;
+
+  const hint = document.getElementById('hint');
+  if (mode === 'XOR' && correct < 4) {
+    hint.textContent = 'Egal wie das Training läuft — mit einem Neuron ist XOR mathematisch nicht trennbar. Genau das hat 1969 den ersten KI-Winter ausgelöst.';
+    hint.style.background = '#fef3c7';
+    hint.style.color = '#92400e';
+  } else if (correct === 4) {
+    hint.textContent = 'Alle vier Punkte korrekt klassifiziert. Wenn das Auto-Training noch läuft: der Fehler wird weiter sinken — das Netz wird "selbstsicherer".';
+    hint.style.background = '#d1fae5';
+    hint.style.color = '#065f46';
+  } else {
+    hint.textContent = 'Wackle an den Schiebereglern oder drück "Auto" um das Netz selbst trainieren zu lassen.';
+    hint.style.background = '#eff6ff';
+    hint.style.color = '#1e40af';
+  }
+
+  // XOR2-Warnung aktualisieren
+  const xw = document.getElementById('xorWarning');
+  if (mode === 'XOR2' && epoch > 200 && meanErr > 0.2) {
+    xw.classList.add('show');
+  } else {
+    xw.classList.remove('show');
+  }
+}
+
+function update(){
+  const rows = computeRows();
+  renderSpace(rows);
+  renderCalcTable(rows);
+}
+
+// ------- Controls -------
+function makeSlider(label, value, min, max, step_, onChange){
+  const wrapper = document.createElement('div');
+  wrapper.className = 'slider-row';
+  wrapper.innerHTML = `
+    <label>${label}</label>
+    <input type="range" min="${min}" max="${max}" step="${step_}" value="${value}">
+    <span class="val">${parseFloat(value).toFixed(2)}</span>
+  `;
+  const input = wrapper.querySelector('input');
+  const val = wrapper.querySelector('.val');
+  input.addEventListener('input', () => {
+    stopAuto();
+    const v = parseFloat(input.value);
+    val.textContent = v.toFixed(2);
+    onChange(v);
+    // Manuelles Wackeln = Training-Historie passt nicht mehr zur aktuellen Konfiguration
+    resetEpoch();
+    update();
+    renderErrorPlot();
+  });
+  return wrapper;
+}
+
+function renderControls(){
+  const c = document.getElementById('controls');
+  c.innerHTML = '';
+  c.innerHTML = '<div class="card-title">Gewichte manuell anpassen</div>';
+
+  if (mode === 'XOR2') {
+    const wrap = document.createElement('div');
+    wrap.style.display = 'grid';
+    wrap.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))';
+    wrap.style.gap = '12px';
+    const blocks = [
+      { key: 'h1', cls: 'h1', title: 'Hidden Neuron h1', formula: 'z₁ = w1·x1 + w2·x2 + b' },
+      { key: 'h2', cls: 'h2', title: 'Hidden Neuron h2', formula: 'z₂ = w1·x1 + w2·x2 + b' },
+      { key: 'out', cls: 'out', title: 'Ausgabeneuron', formula: 'zₒ = w1·a₁ + w2·a₂ + b' }
+    ];
+    blocks.forEach(b => {
+      const block = document.createElement('div');
+      block.className = 'neuron-block ' + b.cls;
+      block.innerHTML = `<div class="neuron-title">${b.title}</div><div class="formula">${b.formula}</div>`;
+      const n = multi[b.key];
+      block.appendChild(makeSlider('Gewicht w1', n.w1, -3, 3, 0.05, v => n.w1 = v));
+      block.appendChild(makeSlider('Gewicht w2', n.w2, -3, 3, 0.05, v => n.w2 = v));
+      block.appendChild(makeSlider('Bias b', n.b, -3, 3, 0.05, v => n.b = v));
+      wrap.appendChild(block);
+    });
+    c.appendChild(wrap);
+  } else {
+    const block = document.createElement('div');
+    block.className = 'neuron-block h1';
+    block.innerHTML = `<div class="neuron-title">Ein Neuron</div><div class="formula">z = w1·x1 + w2·x2 + b  →  a = f(z)</div>`;
+    block.appendChild(makeSlider('Gewicht w1', single.w1, -3, 3, 0.05, v => single.w1 = v));
+    block.appendChild(makeSlider('Gewicht w2', single.w2, -3, 3, 0.05, v => single.w2 = v));
+    block.appendChild(makeSlider('Bias b', single.b, -3, 3, 0.05, v => single.b = v));
+    c.appendChild(block);
+  }
+}
+
+// ------- Mode/Fn Switching -------
+document.querySelectorAll('.tab[data-mode]').forEach(t => {
+  t.addEventListener('click', () => {
+    stopAuto();
+    mode = t.dataset.mode;
+    resetEpoch();
+    renderTabs();
+    renderControls();
+    update();
+    renderErrorPlot();
+  });
+});
+document.querySelectorAll('.tab[data-fn]').forEach(t => {
+  t.addEventListener('click', () => {
+    stopAuto();
+    activFn = t.dataset.fn;
+    resetEpoch();
+    renderTabs();
+    renderActivationPlot();
+    update();
+    renderErrorPlot();
+  });
+});
+
+// Lernrate
+document.getElementById('lrSlider').addEventListener('input', e => {
+  // Log-Skala: -2..0.5 entspricht 0.01..3.16
+  lr = Math.pow(10, parseFloat(e.target.value));
+  document.getElementById('lrVal').textContent = lr.toFixed(lr < 0.1 ? 3 : 2);
+});
+
+document.getElementById('step1Btn').addEventListener('click', () => { stopAuto(); trainN(1); });
+document.getElementById('step10Btn').addEventListener('click', () => { stopAuto(); trainN(10); });
+document.getElementById('autoBtn').addEventListener('click', () => {
+  if (autoTraining) stopAuto(); else startAuto();
+});
+document.getElementById('randomBtn').addEventListener('click', randomizeWeights);
+
+// ------- Init -------
+renderTabs();
+renderActivationPlot();
+renderControls();
+// Startfehler in Historie aufnehmen (sonst Kurve leer)
+errorHistory = [totalError(computeRows())];
+update();
+renderErrorPlot();
+lr = Math.pow(10, parseFloat(document.getElementById('lrSlider').value));
+document.getElementById('lrVal').textContent = lr.toFixed(lr < 0.1 ? 3 : 2);
+</script>
+</body>
+</html>
