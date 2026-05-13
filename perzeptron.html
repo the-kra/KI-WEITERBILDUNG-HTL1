@@ -14,6 +14,34 @@ body {
   line-height: 1.5;
 }
 .wrap { max-width: 1280px; margin: 0 auto; }
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  color: #0f2d52;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+.back-link:hover {
+  background: #0f2d52;
+  color: white;
+  border-color: #0f2d52;
+}
+.back-link-arrow {
+  transition: transform 0.15s ease;
+}
+.back-link:hover .back-link-arrow {
+  transform: translateX(-3px);
+}
+
 h1 { color: #0f2d52; margin: 0 0 8px; font-size: 28px; }
 .subtitle { color: #64748b; margin: 0 0 20px; font-size: 16px; }
 
@@ -264,6 +292,10 @@ svg { display: block; width: 100%; height: auto; }
 </head>
 <body>
 <div class="wrap">
+  <a href="index.html" class="back-link">
+    <span class="back-link-arrow">←</span>
+    <span>Zurück zur KI-Weiterbildung</span>
+  </a>
   <h1>Perzeptron, XOR, Aktivierungen und Training</h1>
   <p class="subtitle">Wackle manuell oder lass das Netz selbst lernen. Beobachte wie der Fehler fällt.</p>
 
