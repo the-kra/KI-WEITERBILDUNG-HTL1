@@ -4,7 +4,6 @@
 > Ein Werkstück aus der schulinternen Lehrerfortbildung an der HTL1 Lastenstraße.
 
 ---
-
 ## Worum geht's
 
 Diese Fortbildung **ist** das Thema. Vom ersten Gedanken bis zur gesprochenen Präsentation hat hier KI mitgearbeitet — nicht als Spielzeug, sondern als Co-Worker.
