@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drei KIs, ein Lehrer — KI-Weiterbildung HTL1 Klagenfurt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1815;
+  --paper: #f4ede0;
+  --paper-deep: #ebe1cd;
+  --accent: #c1392b;
+  --accent-deep: #8a2419;
+  --muted: #6b5d4a;
+  --line: #1a1815;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.5;
+  overflow-x: hidden;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(26,24,21,0.07) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+}
+
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* TOP RIBBON */
+.ribbon {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 8px 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--accent);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.ribbon .marquee {
+  display: flex;
+  gap: 48px;
+  animation: scroll 30s linear infinite;
+  white-space: nowrap;
+}
+
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.ribbon-right { display: flex; gap: 24px; align-items: center; }
+.dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* HERO */
+.hero {
+  padding: 80px 32px 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.hero-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 64px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.hero-meta-left { display: flex; flex-direction: column; gap: 4px; }
+.hero-meta-right { text-align: right; display: flex; flex-direction: column; gap: 4px; }
+.hero-meta .muted { color: var(--muted); }
+
+.kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.kicker::before {
+  content: '';
+  width: 48px;
+  height: 2px;
+  background: var(--accent);
+}
+
+h1.title {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: clamp(48px, 8.5vw, 132px);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  margin-bottom: 32px;
+  font-variation-settings: "opsz" 144;
+}
+
+h1.title .em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+h1.title .underline {
+  text-decoration: underline;
+  text-decoration-thickness: 4px;
+  text-underline-offset: 8px;
+  text-decoration-color: var(--accent);
+}
+
+.tagline {
+  max-width: 720px;
+  font-size: clamp(20px, 2vw, 26px);
+  font-weight: 300;
+  line-height: 1.4;
+  color: var(--ink);
+  margin-bottom: 64px;
+  font-style: italic;
+}
+
+/* CREDITS BAR */
+.credits {
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  padding: 32px 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-bottom: 80px;
+}
+
+.credit-block {
+  position: relative;
+  padding-left: 24px;
+}
+
+.credit-block::before {
+  content: counter(credit, decimal-leading-zero);
+  counter-increment: credit;
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.credits { counter-reset: credit; }
+
+.credit-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.credit-name {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.credit-name .by { font-style: italic; color: var(--muted); font-weight: 400; }
+
+/* SECTION */
+section { padding: 80px 32px; max-width: 1400px; margin: 0 auto; }
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+  display: block;
+}
+
+.spoiler {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 64px 48px;
+  margin: 0 -32px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.spoiler::before {
+  content: 'SPOILER';
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 4px 12px;
+}
+
+.spoiler p {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(24px, 3vw, 38px);
+  line-height: 1.3;
+  max-width: 900px;
+  font-weight: 300;
+}
+
+.spoiler p strong {
+  font-weight: 600;
+  color: var(--accent);
+  font-style: italic;
+}
+
+/* MAIN PROSE */
+.prose {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 64px;
+  margin-bottom: 80px;
+}
+
+.prose-side {
+  position: relative;
+}
+
+.prose-side .marker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  position: sticky;
+  top: 80px;
+}
+
+.prose-side .marker::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 80px;
+  background: var(--ink);
+  margin-top: 16px;
+}
+
+.prose-main h2 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+  font-style: italic;
+}
+
+.prose-main p {
+  font-size: 20px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  max-width: 640px;
+}
+
+.prose-main .highlight {
+  background: var(--accent);
+  color: var(--paper);
+  padding: 1px 8px;
+  font-style: italic;
+}
+
+.three-words {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin: 32px 0;
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  font-style: italic;
+}
+
+.three-words span {
+  position: relative;
+  padding: 8px 20px;
+  border: 1.5px solid var(--ink);
+  background: var(--paper-deep);
+}
+
+.three-words span:nth-child(1) { transform: rotate(-2deg); }
+.three-words span:nth-child(2) { transform: rotate(1deg); }
+.three-words span:nth-child(3) { transform: rotate(-1deg); }
+
+/* WORKFLOW DIAGRAM */
+.workflow {
+  background: var(--paper-deep);
+  padding: 64px 48px;
+  margin: 0 -32px 80px;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+}
+
+.workflow-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(28px, 3.5vw, 44px);
+  font-weight: 400;
+  font-style: italic;
+  margin-bottom: 48px;
+  max-width: 800px;
+}
+
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  position: relative;
+}
+
+.step {
+  position: relative;
+}
+
+.step-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  margin-bottom: 8px;
+}
+
+.step-actor {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.step-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.step-desc {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -18px;
+  top: 24px;
+  font-size: 24px;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* AUDIO BLOCK */
+.audio-block {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 64px 48px;
+  margin: 0 -32px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.audio-block .label {
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.audio-block h3 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.audio-block p {
+  color: rgba(244, 237, 224, 0.7);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.audio-player {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 32px;
+  border: 2px solid var(--accent);
+  position: relative;
+}
+
+.audio-player::before {
+  content: '◉ REC';
+  position: absolute;
+  top: -12px;
+  left: 24px;
+  background: var(--accent);
+  color: var(--paper);
+  padding: 4px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+}
+
+audio { width: 100%; margin-top: 8px; }
+
+.audio-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+/* CLOSE */
+.close {
+  text-align: center;
+  padding: 120px 32px;
+  border-top: 2px solid var(--ink);
+}
+
+.close h2 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(40px, 6vw, 80px);
+  font-weight: 300;
+  line-height: 1.05;
+  font-style: italic;
+  max-width: 1100px;
+  margin: 0 auto;
+  letter-spacing: -0.02em;
+}
+
+.close .strike {
+  text-decoration: line-through;
+  text-decoration-thickness: 3px;
+  text-decoration-color: var(--accent);
+  color: var(--muted);
+  font-style: normal;
+}
+
+.close p.tag {
+  margin-top: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* FOOTER */
+footer {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 48px 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+footer .col { display: flex; flex-direction: column; gap: 8px; }
+footer .col-label { color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; font-size: 10px; }
+footer a { color: var(--paper); text-decoration: none; border-bottom: 1px solid rgba(244,237,224,0.3); transition: border-color 0.2s; }
+footer a:hover { border-color: var(--accent); }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .credits, .workflow-grid, .audio-block, .prose { grid-template-columns: 1fr; }
+  .step::after { display: none; }
+  .hero { padding: 48px 24px 32px; }
+  section { padding: 48px 24px; }
+  .spoiler, .workflow, .audio-block { margin: 0 -24px 48px; padding: 48px 24px; }
+  .hero-meta { flex-direction: column; gap: 16px; }
+  .hero-meta-right { text-align: left; }
+}
+
+/* INTRO ANIMATION */
+.fade-up { opacity: 0; transform: translateY(20px); animation: fadeUp 0.8s ease forwards; }
+.fade-up:nth-child(1) { animation-delay: 0.1s; }
+.fade-up:nth-child(2) { animation-delay: 0.25s; }
+.fade-up:nth-child(3) { animation-delay: 0.4s; }
+.fade-up:nth-child(4) { animation-delay: 0.55s; }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="ribbon">
+  <div style="overflow: hidden; flex: 1;">
+    <div class="marquee">
+      <span>◆ SCHILF 2026</span>
+      <span>HTL1 LASTENSTRASSE KLAGENFURT</span>
+      <span>WEITERBILDUNG · KÜNSTLICHE INTELLIGENZ</span>
+      <span>EIN WERKSTÜCK</span>
+      <span>◆ SCHILF 2026</span>
+      <span>HTL1 LASTENSTRASSE KLAGENFURT</span>
+      <span>WEITERBILDUNG · KÜNSTLICHE INTELLIGENZ</span>
+      <span>EIN WERKSTÜCK</span>
+    </div>
+  </div>
+  <div class="ribbon-right">
+    <span class="dot"></span>
+    <span>LIVE</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="hero-meta fade-up">
+    <div class="hero-meta-left">
+      <span>HTL1 Klagenfurt — Lastenstraße</span>
+      <span class="muted">Schulinterne Lehrerfortbildung</span>
+    </div>
+    <div class="hero-meta-right">
+      <span>Ausgabe №01 · 2026</span>
+      <span class="muted">Konzept · Stimme · Folien</span>
+    </div>
+  </div>
+
+  <div class="kicker fade-up">Eine Fortbildung, die ihr eigenes Thema ist</div>
+
+  <h1 class="title fade-up">
+    Was passiert,<br>
+    wenn ein Lehrer<br>
+    <span class="em">drei KIs</span> an<br>
+    einen <span class="underline">Tisch</span> setzt?
+  </h1>
+
+  <p class="tagline fade-up">
+    Spoiler: Es entsteht keine Magie. Es entsteht Arbeit — aber Arbeit, die plötzlich in Stunden statt Wochen fertig ist.
+  </p>
+
+  <div class="credits">
+    <div class="credit-block">
+      <div class="credit-role">Konzept · Idee · Prompts</div>
+      <div class="credit-name">DI Theodor Kranz, <span class="by">BSc BEd</span></div>
+    </div>
+    <div class="credit-block">
+      <div class="credit-role">Recherche · Inhalt · Folien</div>
+      <div class="credit-name">Claude Opus 4.7 <span class="by">/ Anthropic</span></div>
+    </div>
+    <div class="credit-block">
+      <div class="credit-role">Stimme · Dialog</div>
+      <div class="credit-name">NotebookLM <span class="by">/ Google</span></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="spoiler">
+    <p>Diese Fortbildung <strong>ist</strong> das Thema. Vom ersten Gedanken bis zur gesprochenen Präsentation hat hier KI mitgearbeitet — nicht als Spielzeug, sondern als Co-Worker.</p>
+  </div>
+
+  <div class="prose">
+    <div class="prose-side">
+      <div class="marker">§ 01 — Die Aufstellung</div>
+    </div>
+    <div class="prose-main">
+      <h2>Der Mensch denkt. Die Maschinen arbeiten.</h2>
+      <p>Drei Werkzeuge, eine klare Rollenverteilung. Der Mensch bringt die Frage, die Erfahrung, das didaktische Gespür. Die Maschinen bringen Tempo, Breite, Geduld.</p>
+      <div class="three-words">
+        <span>denkt</span>
+        <span>lenkt</span>
+        <span>prompted</span>
+      </div>
+      <p>Was dabei entsteht, ist kein automatisiertes Endprodukt, sondern ein <span class="highlight">Werkstück</span> — geformt durch menschliche Entscheidungen, beschleunigt durch maschinelle Ausführung.</p>
+    </div>
+  </div>
+
+  <div class="workflow">
+    <div class="workflow-title">Der Weg vom ersten Gedanken zum hörbaren Ergebnis.</div>
+    <div class="workflow-grid">
+      <div class="step">
+        <div class="step-num">SCHRITT 01</div>
+        <div class="step-actor">Mensch</div>
+        <div class="step-role">Konzept &amp; Prompts</div>
+        <div class="step-desc">Fragestellung formulieren. Didaktisches Ziel setzen. Prompts schreiben, die fokussieren statt verwässern.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">SCHRITT 02</div>
+        <div class="step-actor">Claude</div>
+        <div class="step-role">Recherche &amp; Struktur</div>
+        <div class="step-desc">Quellen sichten, Argumente ordnen, Foliengerüst bauen. Korrektur durch den Menschen.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">SCHRITT 03</div>
+        <div class="step-actor">Folien</div>
+        <div class="step-role">Visuelles Skript</div>
+        <div class="step-desc">Aus Text werden Folien. Aus Folien wird ein Skript, das man sprechen kann — oder sprechen lassen.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">SCHRITT 04</div>
+        <div class="step-actor">NotebookLM</div>
+        <div class="step-role">Vertonung &amp; Dialog</div>
+        <div class="step-desc">Stimmen, Pausen, Betonung. Aus dem Skript wird ein hörbarer Beitrag.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <div class="prose-side">
+      <div class="marker">§ 02 — Das Ergebnis</div>
+    </div>
+    <div class="prose-main">
+      <h2>Ein Werkstück, das vorführt, was heute geht.</h2>
+      <p>Hörbar. Sichtbar. Heute Nachmittag. Keine PowerPoint über KI — sondern eine Präsentation, die <em>mit</em> KI entstanden ist, transparent dokumentiert, jederzeit reproduzierbar.</p>
+      <p>Was Kolleginnen und Kollegen daraus mitnehmen, ist nicht eine weitere Tool-Liste, sondern ein <span class="highlight">Workflow</span> — und die Erkenntnis, dass die Hürde nicht in der Technik liegt, sondern im Mut, sie zu benutzen.</p>
+    </div>
+  </div>
+
+  <div class="audio-block">
+    <div>
+      <div class="label">◉ Hörprobe — Audio-Werkstück</div>
+      <h3>"Die Maschinen sprechen über sich selbst."</h3>
+      <p>Generiert mit NotebookLM auf Basis der von Claude erstellten Folien und Recherche. Zwei KI-Stimmen im Dialog über das, was sie selbst gemacht haben — und was nicht.</p>
+    </div>
+    <div class="audio-player">
+      <div class="audio-meta">
+        <span>KI_WEITERBILDUNG_HTL1_MAI26.m4a</span>
+        <span>NOTEBOOKLM // STEREO</span>
+      </div>
+      <audio controls preload="none">
+        <source src="audio/KI-WEITERBILDUNG_HTL1_MAI26.m4a" type="audio/mp4">
+        Dein Browser unterstützt kein Audio-Element.
+      </audio>
+      <div style="margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted);">↓ <a href="audio/KI-WEITERBILDUNG_HTL1_MAI26.m4a" download style="color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent);">Download M4A</a></div>
+    </div>
+  </div>
+</section>
+
+<div class="close">
+  <h2>
+    Keine <span class="strike">Buzzwords</span>. Keine <span class="strike">"Zukunft der Bildung"</span>. Sondern: Was passiert, wenn man sich traut, die Werkzeuge wirklich zu benutzen.
+  </h2>
+  <p class="tag">◆ Ende der Demonstration ◆</p>
+</div>
+
+<footer>
+  <div class="col">
+    <span class="col-label">Veranstaltung</span>
+    <span>SCHILF KI · 2026</span>
+    <span>HTL1 Lastenstraße Klagenfurt</span>
+  </div>
+  <div class="col">
+    <span class="col-label">Autor</span>
+    <span>DI Theodor Kranz, BSc BEd</span>
+  </div>
+  <div class="col">
+    <span class="col-label">Werkzeuge</span>
+    <span>Claude Opus 4.7 · Anthropic</span>
+    <span>NotebookLM · Google</span>
+  </div>
+  <div class="col">
+    <span class="col-label">Lizenz</span>
+    <span>CC BY-SA 4.0</span>
+  </div>
+</footer>
+
+</body>
+</html>
