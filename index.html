@@ -637,6 +637,128 @@ audio { width: 100%; margin-top: 8px; }
   transform: translateX(6px);
 }
 
+/* DOWNLOADS */
+.downloads {
+  background: var(--paper-deep);
+  padding: 64px 48px;
+  margin: 0 -32px 80px;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+}
+
+.downloads-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.downloads-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.downloads h2 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(28px, 3.4vw, 48px);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.05;
+  max-width: 640px;
+}
+
+.downloads-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: right;
+}
+
+.dl-list {
+  counter-reset: dl;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  border-top: 2px solid var(--ink);
+}
+
+.dl-item {
+  counter-increment: dl;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 16px;
+  text-decoration: none;
+  color: var(--ink);
+  border-bottom: 1px solid rgba(26,24,21,0.18);
+  border-right: 1px solid rgba(26,24,21,0.18);
+  transition: background 0.18s ease, padding-left 0.18s ease;
+  position: relative;
+}
+
+.dl-item:nth-child(2n) { border-right: none; }
+
+.dl-item:hover {
+  background: var(--ink);
+  color: var(--paper);
+  padding-left: 24px;
+}
+
+.dl-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 28px;
+}
+
+.dl-num::before { content: counter(dl, decimal-leading-zero); }
+
+.dl-body { flex: 1; min-width: 0; }
+
+.dl-title {
+  font-family: 'Fraunces', serif;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.dl-file {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dl-item:hover .dl-file { color: rgba(244,237,224,0.6); }
+
+.dl-arrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  transition: transform 0.18s ease;
+}
+
+.dl-item:hover .dl-arrow { transform: translateY(3px); color: var(--paper); }
+
+@media (max-width: 900px) {
+  .dl-list { grid-template-columns: 1fr; }
+  .dl-item { border-right: none; }
+}
+
 /* CLOSE */
 .close {
   text-align: center;
@@ -876,6 +998,84 @@ footer a:hover { border-color: var(--accent); }
       </div>
     </div>
   </a>
+
+  <div class="downloads">
+    <!-- ==== PFAD ANPASSEN: Ordner, in dem die PDFs liegen. ==== -->
+    <!-- Bei gleichem Ordner wie die HTML: href="KI_SCHILF_..." (also "pdf/" entfernen) -->
+    <div class="downloads-head">
+      <div>
+        <div class="downloads-label">§ 04 — Material zum Mitnehmen</div>
+        <h2>Die Folien-Sets zum Nachlesen und Weitergeben.</h2>
+      </div>
+      <div class="downloads-count">7 Dokumente · PDF</div>
+    </div>
+
+    <div class="dl-list">
+      <a href="pdf/KI_SCHILF_Bewusstsein.pdf" download class="dl-item">
+        <span class="dl-num"></span>
+        <span class="dl-body">
+          <span class="dl-title">Bewusstsein</span>
+          <span class="dl-file">KI_SCHILF_Bewusstsein.pdf</span>
+        </span>
+        <span class="dl-arrow">↓</span>
+      </a>
+
+      <a href="pdf/KI_SCHILF_LLM.pdf" download class="dl-item">
+        <span class="dl-num"></span>
+        <span class="dl-body">
+          <span class="dl-title">Large Language Models</span>
+          <span class="dl-file">KI_SCHILF_LLM.pdf</span>
+        </span>
+        <span class="dl-arrow">↓</span>
+      </a>
+
+      <a href="pdf/KI_SCHILF-Geschichte.pdf" download class="dl-item">
+        <span class="dl-num"></span>
+        <span class="dl-body">
+          <span class="dl-title">Geschichte der KI</span>
+          <span class="dl-file">KI_SCHILF-Geschichte.pdf</span>
+        </span>
+        <span class="dl-arrow">↓</span>
+      </a>
+
+      <a href="pdf/KI-SCHILF_Sub-Politik.pdf" download class="dl-item">
+        <span class="dl-num"></span>
+        <span class="dl-body">
+          <span class="dl-title">Subvention &amp; Politik</span>
+          <span class="dl-file">KI-SCHILF_Sub-Politik.pdf</span>
+        </span>
+        <span class="dl-arrow">↓</span>
+      </a>
+
+      <a href="pdf/KI-SCHILF_DSGVO.pdf" download class="dl-item">
+        <span class="dl-num"></span>
+        <span class="dl-body">
+          <span class="dl-title">DSGVO &amp; Datenschutz</span>
+          <span class="dl-file">KI-SCHILF_DSGVO.pdf</span>
+        </span>
+        <span class="dl-arrow">↓</span>
+      </a>
+
+      <a href="pdf/KI-SCHILF_Geld-verdienen.pdf" download class="dl-item">
+        <span class="dl-num"></span>
+        <span class="dl-body">
+          <span class="dl-title">Geld verdienen mit KI</span>
+          <span class="dl-file">KI-SCHILF_Geld-verdienen.pdf</span>
+        </span>
+        <span class="dl-arrow">↓</span>
+      </a>
+
+      <a href="pdf/KI-SCHILF_Tools-Schule.pdf" download class="dl-item">
+        <span class="dl-num"></span>
+        <span class="dl-body">
+          <span class="dl-title">Tools für die Schule</span>
+          <span class="dl-file">KI-SCHILF_Tools-Schule.pdf</span>
+        </span>
+        <span class="dl-arrow">↓</span>
+      </a>
+    </div>
+  </div>
+
 </section>
 
 <div class="close">
